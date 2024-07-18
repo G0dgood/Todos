@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import Checkbox from 'expo-checkbox';
+// import Checkbox from 'expo-checkbox';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ImageBackground, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { fetchTodos, toggleTodo } from '../features/todoSlice';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Checkbox } from 'react-native-paper';
 export default function Todo({ navigation }: any) {
 	const dispatch = useDispatch();
 	const todos = useSelector((state: RootState) => state.todo?.todos);
@@ -16,7 +17,7 @@ export default function Todo({ navigation }: any) {
 		dispatch(fetchTodos());
 	}, [dispatch]);
 
-	// console.log('todos--todos', todos)
+	console.log('todos--todos', todos)
 
 
 
@@ -43,55 +44,70 @@ export default function Todo({ navigation }: any) {
 				</ImageBackground>
 
 				<ScrollView style={styles.Study_Container}>
-					{activeTodos?.map((todo: any) => (
-						<TouchableOpacity key={todo?.id} onPress={() => handleToggleTodo(todo.id)}>
-							<View style={styles.list_item1}>
-								<View style={styles.list_item1_sub}>
-									<View style={styles.circle_icon}>
-										<AntDesign name="profile" size={18} color="#194A66" />
+					{activeTodos.length === 0 ? (
+						<View style={styles.noTodosContainer}>
+							<AntDesign name="frowno" size={50} color="#194A66" />
+							<Text style={styles.noTodosText}>No active todos available</Text>
+						</View>
+					) : (
+						activeTodos.map((todo) => (
+							<TouchableOpacity
+								key={todo.id}
+								style={styles.touchableOpacity} // Adjust the style if necessary
+								onPress={() => handleToggleTodo(todo.id)}
+							>
+								<View style={styles.list_item1}>
+									<View style={styles.list_item1_sub}>
+										<View style={styles.circle_icon}>
+											<AntDesign name="profile" size={18} color="#194A66" />
+										</View>
+										<View style={styles.circle_icon_container}>
+											<Text style={styles.circle_icon_Text}>{todo.title}</Text>
+											<Text>{todo.time}</Text>
+										</View>
 									</View>
-									<View style={styles.circle_icon_container}>
-										<Text style={styles.circle_icon_Text}>{todo.title}</Text>
-										<Text>{todo.time}</Text>
-									</View>
-								</View>
-								<View>
-									<Checkbox
-										style={styles.checkbox}
-										status={todo.completed ? 'checked' : 'unchecked'}
+									<Checkbox.Item
+										label=""
+										status={todo.isCompleted ? 'checked' : 'unchecked'}
 										color="#4A3780"
 										onPress={() => handleToggleTodo(todo.id)}
 									/>
 								</View>
-							</View>
-						</TouchableOpacity>
-					))}
+							</TouchableOpacity>
+						))
+					)}
 				</ScrollView>
 
 				<View style={styles.Completed_selection}>
 					<Text style={styles.Completed_selection_text}>Completed</Text>
+
 					<ScrollView style={styles.Study_Container1}>
-						{completedTodos?.map((completedTodo: any) => (
-							<View key={completedTodo.id} style={styles.list_item1}>
-								<View style={styles.list_item1_sub}>
-									<View style={styles.circle_icon}>
-										<AntDesign name="profile" size={18} color="#194A66" />
+						{completedTodos.length === 0 ? (
+							<View style={styles.noTodosContainer}>
+								<AntDesign name="frowno" size={50} color="#194A66" />
+								<Text style={styles.noTodosText}>No completed todos available</Text>
+							</View>
+						) : (
+							completedTodos.map((completedTodo) => (
+								<View key={completedTodo.id} style={styles.list_item1}>
+									<View style={styles.list_item1_sub}>
+										<View style={styles.circle_icon}>
+											<AntDesign name="profile" size={18} color="#194A66" />
+										</View>
+										<View style={styles.circle_icon_container}>
+											<Text style={styles.circle_icon_Text}>{completedTodo.title}</Text>
+											<Text>{completedTodo.time}</Text>
+										</View>
 									</View>
-									<View style={styles.circle_icon_container}>
-										<Text style={styles.circle_icon_Text}>{completedTodo.title}</Text>
-										<Text>{completedTodo.time}</Text>
-									</View>
-								</View>
-								<View>
-									<Checkbox
-										style={styles.checkbox}
-										status="checked"
-										color="#4A3780"
-										disabled
+									<Checkbox.Item
+										label=""
+										status={completedTodo.isCompleted ? 'checked' : 'unchecked'}
+										color="green"
+
 									/>
 								</View>
-							</View>
-						))}
+							))
+						)}
 					</ScrollView>
 				</View>
 
@@ -107,7 +123,17 @@ export default function Todo({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-
+	noTodosContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		padding: 20,
+	},
+	noTodosText: {
+		fontSize: 18,
+		color: '#194A66',
+		marginTop: 10,
+	},
 	Study_Container1: {
 		borderRadius: 16,
 	},

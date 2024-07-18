@@ -27,8 +27,8 @@ const TimeInput = ({ label, formData, onChange }: Props) => {
 				label={label}
 				style={styles.text_input}
 				value={formData.toTimeString().split(' ')[0]}
-				right={<IconButton icon="clock" onPress={() => setShowTimePicker(true)} />}
-				editable={false}
+				right={<TextInput.Icon icon="clock" onPress={() => setShowTimePicker(true)} />}
+				editable={true}
 				theme={{
 					colors: { onSurfaceVariant: '#A7A9AC' },
 					roundness: 14
@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#F0F4F8",
 		fontSize: 14,
 		marginBottom: 10,
-		width: windowWidth / 2.5,
+		width: windowWidth / 1.15,
 	},
 });

@@ -12,8 +12,8 @@ const FormInputTextarea = ({ label, keyboardType, value, onChangeText, ...rest }
 				style={styles.text_input}
 				value={value}
 				onChangeText={onChangeText}
-				multiline={true}
-				numberOfLines={6}
+				multiline={false}
+				numberOfLines={4}
 				theme={{
 					colors: { onSurfaceVariant: '#A7A9AC' },
 					roundness: 14

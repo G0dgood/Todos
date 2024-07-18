@@ -13,7 +13,7 @@ interface Props {
 const DateInput = ({ label, formData, onChange }: Props) => {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 
-	const onDateChangeHandler = (day: { timestamp: string | number | Date; }) => {
+	const onDateChangeHandler = (day: { timestamp: string | number | Date }) => {
 		const selectedDate = new Date(day.timestamp);
 		setShowDatePicker(false);
 		onChange(selectedDate);
@@ -26,8 +26,8 @@ const DateInput = ({ label, formData, onChange }: Props) => {
 				label={label}
 				style={styles.text_input}
 				value={formData.toLocaleDateString()}
-				right={<IconButton icon="calendar" onPress={() => setShowDatePicker(true)} />}
-				editable={false}
+				right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePicker(true)} />}
+				editable={true}
 				theme={{
 					colors: { onSurfaceVariant: '#A7A9AC' },
 					roundness: 14
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
 		fontFamily: "Inter_400Regular",
 		fontSize: 14,
 		marginBottom: 10,
-		width: windowWidth / 2.5,
+		width: windowWidth / 1.15,
 	},
 	calendar: {
 		borderTopWidth: 1,

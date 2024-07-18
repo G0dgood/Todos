@@ -9,6 +9,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { createTodo } from '../features/todoSlice';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const AddTodos = ({ navigation }: any) => {
 	const dispatch = useDispatch();
@@ -19,7 +20,9 @@ const AddTodos = ({ navigation }: any) => {
 	const [category, setCategory] = useState('');
 
 	const handleSave = () => {
+		const id = Date.now();
 		const newTodo = {
+			id,
 			title,
 			category,
 			date: date.toISOString().split('T')[0],
@@ -34,7 +37,8 @@ const AddTodos = ({ navigation }: any) => {
 
 
 	return (
-		<View style={styles.container}>
+		// <View style={styles.container}>
+		<KeyboardAwareScrollView contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }} scrollEnabled={true}>
 			<View>
 				<FormInput
 					label="Task Title"
@@ -89,7 +93,7 @@ const AddTodos = ({ navigation }: any) => {
 					<Text style={styles.logout_container_text}>Save</Text>
 				</TouchableOpacity>
 			</View>
-		</View>
+		</KeyboardAwareScrollView>
 	);
 };
 
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
 	},
 
 	containerCategorySubInput: {
-		flexDirection: 'row',
+		flexDirection: 'column',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginTop: 20,

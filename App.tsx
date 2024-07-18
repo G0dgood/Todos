@@ -1,20 +1,24 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
 import { store } from './store';
-import AppStack from './navigation/AppStack';
 import { StatusBar } from 'react-native';
 import Navigation from './navigation';
+import useCachedResources from './hooks/useCachedResources';
 
 
-function App() {
+export default function App() {
+  const isLoadingComplete = useCachedResources();
 
 
-  return (
-    <Provider store={store}>
-      <Navigation />
-      <StatusBar />
-    </Provider>
-  );
 
+  if (!isLoadingComplete) {
+    return null;
+  } else {
+    return (
+      <Provider store={store}>
+        <Navigation />
+        <StatusBar />
+      </Provider>
+    );
+  }
 }

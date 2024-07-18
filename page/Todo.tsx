@@ -1,134 +1,116 @@
+import { useNavigation } from '@react-navigation/native';
 import Checkbox from 'expo-checkbox';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImageBackground, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { fetchTodos, toggleTodo } from '../features/todoSlice';
+import AntDesign from '@expo/vector-icons/AntDesign';
+export default function Todo({ navigation }: any) {
+	const dispatch = useDispatch();
+	const todos = useSelector((state: RootState) => state.todo?.todos);
+	const isLoading = useSelector((state: RootState) => state.todo.isLoading);
 
-export default function Todo() {
-	const [isChecked, setChecked] = useState(false);
+	useEffect(() => {
+		dispatch(fetchTodos());
+	}, [dispatch]);
 
+	// console.log('todos--todos', todos)
+
+
+
+	const handleToggleTodo = (id: number) => {
+		dispatch(toggleTodo(id)); // Dispatch action to toggle todo completion
+	};
+
+	const activeTodos = todos.filter((todo) => !todo.isCompleted);
+	const completedTodos = todos.filter((todo) => todo.isCompleted);
 
 	return (
 		<View style={styles.container}>
-			<ScrollView  >
+			<View>
 				<StatusBar style="auto" />
 				<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
 					<View style={styles.titleViewContainer}>
-						<View  >
+						<View>
 							<Text style={styles.title_text_one}>October 20, 2022</Text>
 						</View>
-						<View  >
+						<View>
 							<Text style={styles.title_text_two}>My Todo List</Text>
 						</View>
 					</View>
 				</ImageBackground>
 
-				<View style={styles.Study_Container}>
-					<View style={styles.list_item1}>
-						<View style={styles.list_item1_sub}>
-							<View style={styles.circle_icon}></View>
-							<View style={styles.circle_icon_container}>
-								<Text style={styles.circle_icon_Text}>Study lesson</Text>
-								<Text>4:00pm</Text>
+				<ScrollView style={styles.Study_Container}>
+					{activeTodos?.map((todo: any) => (
+						<TouchableOpacity key={todo?.id} onPress={() => handleToggleTodo(todo.id)}>
+							<View style={styles.list_item1}>
+								<View style={styles.list_item1_sub}>
+									<View style={styles.circle_icon}>
+										<AntDesign name="profile" size={18} color="#194A66" />
+									</View>
+									<View style={styles.circle_icon_container}>
+										<Text style={styles.circle_icon_Text}>{todo.title}</Text>
+										<Text>{todo.time}</Text>
+									</View>
+								</View>
+								<View>
+									<Checkbox
+										style={styles.checkbox}
+										status={todo.completed ? 'checked' : 'unchecked'}
+										color="#4A3780"
+										onPress={() => handleToggleTodo(todo.id)}
+									/>
+								</View>
 							</View>
-						</View>
-						<View>
-							<Checkbox
-								style={styles.checkbox}
-								value={isChecked}
-								onValueChange={setChecked}
-								color={isChecked ? '#4A3780' : undefined}
-							/>
-						</View>
-					</View>
-					<View style={styles.list_item2}>
-						<View style={styles.list_item1_sub}>
-							<View style={styles.circle_icon}></View>
-							<View style={styles.circle_icon_container}>
-								<Text style={styles.circle_icon_Text}>Run 5k</Text>
-								<Text>4:00pm</Text>
-							</View>
-						</View>
-						<View>
-							<Checkbox
-								style={styles.checkbox}
-								value={isChecked}
-								onValueChange={setChecked}
-								color={isChecked ? '#4A3780' : undefined}
-							/>
-						</View>
-					</View>
-					<View style={styles.list_item3}>
-						<View style={styles.list_item1_sub}>
-							<View style={styles.circle_icon}></View>
-							<View style={styles.circle_icon_container}>
-								<Text style={styles.circle_icon_Text}>Go to party</Text>
-								<Text>4:00pm</Text>
-							</View>
-						</View>
-						<View>
-							<Checkbox
-								style={styles.checkbox}
-								value={isChecked}
-								onValueChange={setChecked}
-								color={isChecked ? '#4A3780' : undefined}
-							/>
-						</View>
-					</View>
-
-				</View>
+						</TouchableOpacity>
+					))}
+				</ScrollView>
 
 				<View style={styles.Completed_selection}>
-
 					<Text style={styles.Completed_selection_text}>Completed</Text>
-
-					<View style={styles.list_item2}>
-						<View style={styles.list_item1_sub}>
-							<View style={styles.circle_icon}></View>
-							<View style={styles.circle_icon_container}>
-								<Text style={styles.circle_icon_Text}>Run 5k</Text>
-								<Text>4:00pm</Text>
+					<ScrollView style={styles.Study_Container1}>
+						{completedTodos?.map((completedTodo: any) => (
+							<View key={completedTodo.id} style={styles.list_item1}>
+								<View style={styles.list_item1_sub}>
+									<View style={styles.circle_icon}>
+										<AntDesign name="profile" size={18} color="#194A66" />
+									</View>
+									<View style={styles.circle_icon_container}>
+										<Text style={styles.circle_icon_Text}>{completedTodo.title}</Text>
+										<Text>{completedTodo.time}</Text>
+									</View>
+								</View>
+								<View>
+									<Checkbox
+										style={styles.checkbox}
+										status="checked"
+										color="#4A3780"
+										disabled
+									/>
+								</View>
 							</View>
-						</View>
-						<View>
-							<Checkbox
-								style={styles.checkbox}
-								value={isChecked}
-								onValueChange={setChecked}
-								color={isChecked ? '#4A3780' : undefined}
-							/>
-						</View>
-					</View>
-					<View style={styles.list_item2}>
-						<View style={styles.list_item1_sub}>
-							<View style={styles.circle_icon}></View>
-							<View style={styles.circle_icon_container}>
-								<Text style={styles.circle_icon_Text}>Run 5k</Text>
-								<Text>4:00pm</Text>
-							</View>
-						</View>
-						<View>
-							<Checkbox
-								style={styles.checkbox}
-								value={isChecked}
-								onValueChange={setChecked}
-								color={isChecked ? '#4A3780' : undefined}
-							/>
-						</View>
-					</View>
+						))}
+					</ScrollView>
 				</View>
 
-			</ScrollView>
+			</View>
 			<View style={styles.btn_container_sub}>
-				<TouchableOpacity style={styles.btn_container}  >
+				<TouchableOpacity style={styles.btn_container} onPress={() => navigation.navigate("AddTodos")}>
 					<Text style={styles.logout_container_text}>Add New Task</Text>
 				</TouchableOpacity>
 			</View>
-
 		</View>
+
 	);
 }
 
 const styles = StyleSheet.create({
+
+	Study_Container1: {
+		borderRadius: 16,
+	},
 
 	Completed_selection_text: {
 		fontSize: 16,
@@ -215,8 +197,6 @@ const styles = StyleSheet.create({
 		height: 80,
 		width: "100%",
 		backgroundColor: "#fff",
-		borderTopRightRadius: 20,
-		borderTopLeftRadius: 20,
 		justifyContent: "space-between",
 		alignItems: "center",
 		padding: 16,
@@ -255,8 +235,7 @@ const styles = StyleSheet.create({
 		width: "90%",
 		position: "absolute",
 		marginTop: 190,
-		gap: 1
-
+		gap: 1,
 	},
 
 	title_text_two: {
@@ -288,3 +267,181 @@ const styles = StyleSheet.create({
 		backgroundColor: '#F1F5F9',
 	},
 });
+
+
+
+// <View style={styles.container}>
+// 	<ScrollView  >
+// 		<StatusBar style="auto" />
+// 		<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
+// 			<View style={styles.titleViewContainer}>
+// 				<View  >
+// 					<Text style={styles.title_text_one}>October 20, 2022</Text>
+// 				</View>
+// 				<View  >
+// 					<Text style={styles.title_text_two}>My Todo List</Text>
+// 				</View>
+// 			</View>
+// 		</ImageBackground>
+
+// 		<View style={styles.Study_Container}>
+// 			<View style={styles.list_item1}>
+// 				<View style={styles.list_item1_sub}>
+// 					<View style={styles.circle_icon}></View>
+// 					<View style={styles.circle_icon_container}>
+// 						<Text style={styles.circle_icon_Text}>Study lesson</Text>
+// 						<Text>4:00pm</Text>
+// 					</View>
+// 				</View>
+// 				<View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={isChecked}
+// 						onValueChange={setChecked}
+// 						color={isChecked ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			</View>
+// 			<View style={styles.list_item2}>
+// 				<View style={styles.list_item1_sub}>
+// 					<View style={styles.circle_icon}></View>
+// 					<View style={styles.circle_icon_container}>
+// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
+// 						<Text>4:00pm</Text>
+// 					</View>
+// 				</View>
+// 				<View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={isChecked}
+// 						onValueChange={setChecked}
+// 						color={isChecked ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			</View>
+// 			<View style={styles.list_item3}>
+// 				<View style={styles.list_item1_sub}>
+// 					<View style={styles.circle_icon}></View>
+// 					<View style={styles.circle_icon_container}>
+// 						<Text style={styles.circle_icon_Text}>Go to party</Text>
+// 						<Text>4:00pm</Text>
+// 					</View>
+// 				</View>
+// 				<View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={isChecked}
+// 						onValueChange={setChecked}
+// 						color={isChecked ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			</View>
+
+// 		</View>
+
+// 		<View style={styles.Completed_selection}>
+
+// 			<Text style={styles.Completed_selection_text}>Completed</Text>
+
+// 			<View style={styles.list_item2}>
+// 				<View style={styles.list_item1_sub}>
+// 					<View style={styles.circle_icon}></View>
+// 					<View style={styles.circle_icon_container}>
+// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
+// 						<Text>4:00pm</Text>
+// 					</View>
+// 				</View>
+// 				<View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={isChecked}
+// 						onValueChange={setChecked}
+// 						color={isChecked ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			</View>
+// 			<View style={styles.list_item2}>
+// 				<View style={styles.list_item1_sub}>
+// 					<View style={styles.circle_icon}></View>
+// 					<View style={styles.circle_icon_container}>
+// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
+// 						<Text>4:00pm</Text>
+// 					</View>
+// 				</View>
+// 				<View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={isChecked}
+// 						onValueChange={setChecked}
+// 						color={isChecked ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			</View>
+// 		</View>
+
+// 	</ScrollView>
+// 	<View style={styles.btn_container_sub}>
+// 		<TouchableOpacity style={styles.btn_container} onPress={() => navigation.navigate("AddTodos")}>
+// 			<Text style={styles.logout_container_text}>Add New Task</Text>
+// 		</TouchableOpacity>
+// 	</View>
+
+// </View>
+
+// <View style={styles.container}>
+// 	<ScrollView>
+// 		<StatusBar style="auto" />
+// 		<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
+// 			<View style={styles.titleViewContainer}>
+// 				<Text style={styles.title_text_one}>July 17, 2024</Text>
+// 				<Text style={styles.title_text_two}>My Todo List</Text>
+// 			</View>
+// 		</ImageBackground>
+
+// 		<View style={styles.Study_Container}>
+// 			{incompleteTasks.map(task => (
+// 				<View key={task.id} style={styles.list_item1}>
+// 					<View style={styles.list_item1_sub}>
+// 						<View style={styles.circle_icon}></View>
+// 						<View style={styles.circle_icon_container}>
+// 							<Text style={styles.circle_icon_Text}>{task.title}</Text>
+// 							<Text>{task.time}</Text>
+// 						</View>
+// 					</View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={task.isCompleted}
+// 						onValueChange={() => handleCheckboxChange(task.id)}
+// 						color={task.isCompleted ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			))}
+// 		</View>
+
+// 		<View style={styles.list_item2}>
+// 			<Text style={styles.Completed_selection_text}>Completed</Text>
+// 			{completedTasks.map(task => (
+// 				<View key={task.id} style={styles.list_item2}>
+// 					<View style={styles.list_item1_sub}>
+// 						<View style={styles.circle_icon}></View>
+// 						<View style={styles.circle_icon_container}>
+// 							<Text style={styles.circle_icon_Text}>{task.title}</Text>
+// 							<Text>{task.time}</Text>
+// 						</View>
+// 					</View>
+// 					<Checkbox
+// 						style={styles.checkbox}
+// 						value={task.isCompleted}
+// 						onValueChange={() => handleCheckboxChange(task.id)}
+// 						color={task.isCompleted ? '#4A3780' : undefined}
+// 					/>
+// 				</View>
+// 			))}
+// 		</View>
+// 	</ScrollView>
+// 	<View style={styles.btn_container_sub}>
+// 		<TouchableOpacity style={styles.btn_container} onPress={() => navigation.navigate('AddTodos')}>
+// 			<Text style={styles.logout_container_text}>Add New Task</Text>
+// 		</TouchableOpacity>
+// 	</View>
+// </View>

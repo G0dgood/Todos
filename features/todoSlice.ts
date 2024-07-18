@@ -1,88 +1,99 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import todoService from './todoService'
- import AsyncStorage from '@react-native-async-storage/async-storage';
-   
-const initialState:any = { 
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import todoService from './todoService';
 
-  user:   null,
+interface Todo {
+  id: number;
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  notes: string;
+  isCompleted: boolean;
+}
+
+interface TodoState {
+  todos: Todo[];
+  isError: boolean;
+  isSuccess: boolean;
+  isLoading: boolean;
+  message: string;
+}
+
+const initialState: TodoState = {
+  todos: [],
   isError: false,
   isSuccess: false,
-  isLoading: false, 
-  message: '', 
+  isLoading: false,
+  message: '',
+};
 
-  
- 
-}
- 
-
-// todo   
-export const createTodo = createAsyncThunk('todo/create', async (data, thunkAPI) => {
+export const createTodo = createAsyncThunk('todo/create', async (todo: Todo, thunkAPI) => {
   try {
-    return await todoService.createTodo()
-
-  } catch (error: any) {  
-    const message = (error.response && 
-        error.response.data && 
-        error.response.data.message) ||error.response.data.errors[0].message
-      error.message ||
-      error.toString()  
-    return thunkAPI.rejectWithValue(message)
+    const createdTodo = await todoService.createTodo(todo);
+    return createdTodo;
+  } catch (error:any) {
+    const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+    return thunkAPI.rejectWithValue(message);
   }
-})
+});
 
- 
-
- 
+export const fetchTodos = createAsyncThunk('todo/fetch', async (_, thunkAPI) => {
+  try {
+    const fetchedTodos = await todoService.fetchTodos();
+    return fetchedTodos;
+  } catch (error:any) {
+    const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
 
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
-    reset: (state) => {   
-      state.isLoading = false
-      state.isSuccess = false
-      state.isError = false
-      state.message = ''  
+    reset: (state) => {
+      state.isLoading = false;
+      state.isSuccess = false;
+      state.isError = false;
+      state.message = '';
     },
-
-      setUserInfo: (state, action) => {
-      state.user = action.payload
+    toggleTodo: (state, action: PayloadAction<number>) => {
+      const todo = state.todos.find((todo) => todo.id === action.payload);
+      if (todo) {
+        todo.isCompleted = !todo.isCompleted;
+      }
     },
-
-    logoutUser: state => {
-      AsyncStorage.removeItem('eezy-user-info')
-      state.user = null
-    }
   },
-
   extraReducers: (builder) => {
     builder
-      //  Login
       .addCase(createTodo.pending, (state) => {
-        state.isLoading = true
+        state.isLoading = true;
       })
       .addCase(createTodo.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.isSuccess = true
-        state.user = action.payload 
-      }) 
-      .addCase(createTodo.rejected, (state:any, action) => {
-        state.isLoading  = false
-        state.isError  = true
-        state.message  = action.payload
-        state.data  = [] 
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.todos.push(action.payload);
       })
-
-      
- 
-      
+      .addCase(createTodo.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
+      .addCase(fetchTodos.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.todos = action.payload;
+      })
+      .addCase(fetchTodos.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      });
   },
-})
+});
 
-export const { reset  } = todoSlice.actions
-export default todoSlice.reducer
-
-
-
-
- 
+export const { reset, toggleTodo } = todoSlice.actions;
+export default todoSlice.reducer;

@@ -1,24 +1,25 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
- 
- 
- 
- 
- 
-// Created Todo List  
-const createTodo = async ( ) => { 
-    const userInfo = await AsyncStorage.getItem('todo_info')  
-  return userInfo
-}
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Create Todo
+const createTodo = async (todo: any) => {
+
+  const todos = await AsyncStorage.getItem('todos');
+  const todosArray = todos ? JSON.parse(todos) : [];
+  todosArray.push(todo);
+  await AsyncStorage.setItem('todos', JSON.stringify(todosArray)); 
+  return todo;
+};
+
+// Fetch Todos
+const fetchTodos = async () => {
+  const todos = await AsyncStorage.getItem('todos');
+  return todos ? JSON.parse(todos) : [];
+};
+
+const todoService = {
+  createTodo,
+  fetchTodos,
   
+};
 
- 
- 
-  
-
-const authService = { 
- 
-  createTodo,  
-   
-}
-
-export default authService
+export default todoService;

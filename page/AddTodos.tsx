@@ -10,6 +10,24 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { createTodo } from '../features/todoSlice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import * as Haptics from 'expo-haptics';
+
+
+const CategoryPicker = ({ setCategory }: any) => {
+	return (
+		<View style={styles.containerCategorySub}>
+			<TouchableOpacity style={styles.CategoryIcon1} onPress={() => { setCategory('Profile'); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) }}>
+				<AntDesign name="profile" size={18} color="#194A66" />
+			</TouchableOpacity>
+			<TouchableOpacity style={styles.CategoryIcon2} onPress={() => { setCategory('Calendar'); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) }}>
+				<MaterialCommunityIcons name="calendar-today" size={18} color="#4A3780" />
+			</TouchableOpacity>
+			<TouchableOpacity style={styles.CategoryIcon3} onPress={() => { setCategory('Trophy'); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) }}>
+				<SimpleLineIcons name="trophy" size={18} color="#403100" />
+			</TouchableOpacity>
+		</View>
+	);
+};
 
 const AddTodos = ({ navigation }: any) => {
 	const dispatch = useDispatch();
@@ -20,6 +38,7 @@ const AddTodos = ({ navigation }: any) => {
 	const [category, setCategory] = useState('');
 
 	const handleSave = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
 		const id = Date.now();
 		const newTodo = {
 			id,
@@ -30,6 +49,7 @@ const AddTodos = ({ navigation }: any) => {
 			notes,
 			isCompleted: false,
 		};
+		// @ts-ignore 
 		dispatch(createTodo(newTodo));
 		navigation.goBack();
 	};
@@ -37,7 +57,6 @@ const AddTodos = ({ navigation }: any) => {
 
 
 	return (
-		// <View style={styles.container}>
 		<KeyboardAwareScrollView contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }} scrollEnabled={true}>
 			<View>
 				<FormInput
@@ -50,18 +69,9 @@ const AddTodos = ({ navigation }: any) => {
 			</View>
 
 			<View style={styles.containerCategory}>
-				<Text>Category</Text>
-				<View style={styles.containerCategorySub}>
-					<TouchableOpacity style={styles.CategoryIcon1} onPress={() => setCategory('Profile')}>
-						<AntDesign name="profile" size={18} color="#194A66" />
-					</TouchableOpacity>
-					<TouchableOpacity style={styles.CategoryIcon2} onPress={() => setCategory('Calendar')}>
-						<MaterialCommunityIcons name="calendar-today" size={18} color="#4A3780" />
-					</TouchableOpacity>
-					<TouchableOpacity style={styles.CategoryIcon3} onPress={() => setCategory('Trophy')}>
-						<SimpleLineIcons name="trophy" size={18} color="#403100" />
-					</TouchableOpacity>
-				</View>
+				<Text>Category:</Text>
+				<Text>{category} </Text>
+				<CategoryPicker setCategory={setCategory} />
 			</View>
 
 			<View style={styles.containerCategorySubInput}>

@@ -31,7 +31,7 @@ export const createTodo = createAsyncThunk('todo/create', async (todo: Todo, thu
   try {
     const createdTodo = await todoService.createTodo(todo);
     return createdTodo;
-  } catch (error:any) {
+  } catch (error: any) {
     const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
     return thunkAPI.rejectWithValue(message);
   }
@@ -41,12 +41,20 @@ export const fetchTodos = createAsyncThunk('todo/fetch', async (_, thunkAPI) => 
   try {
     const fetchedTodos = await todoService.fetchTodos();
     return fetchedTodos;
-  } catch (error:any) {
+  } catch (error: any) {
     const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
     return thunkAPI.rejectWithValue(message);
   }
 });
-
+export const clearTodos = createAsyncThunk('todo/clear', async (_, thunkAPI) => {
+  try {
+    await todoService.clearTodos();
+    return [];
+  } catch (error: any) {
+    const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
 export const todoSlice = createSlice({
   name: 'todo',
   initialState,
@@ -62,6 +70,9 @@ export const todoSlice = createSlice({
       if (todo) {
         todo.isCompleted = !todo.isCompleted;
       }
+    },
+    clearTodos: (state) => {
+      state.todos = []; 
     },
   },
   extraReducers: (builder) => {

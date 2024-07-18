@@ -16,10 +16,15 @@ const fetchTodos = async () => {
   return todos ? JSON.parse(todos) : [];
 };
 
+const clearTodos = async () => { 
+    await AsyncStorage.removeItem('todos');
+  return;
+};
+
 const todoService = {
   createTodo,
   fetchTodos,
-  
+  clearTodos
 };
 
 export default todoService;

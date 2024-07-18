@@ -1,32 +1,67 @@
-import { useNavigation } from '@react-navigation/native';
-// import Checkbox from 'expo-checkbox';
+
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ImageBackground, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, ImageBackground, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { fetchTodos, toggleTodo } from '../features/todoSlice';
+import { fetchTodos, toggleTodo, clearTodos } from '../features/todoSlice';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Checkbox } from 'react-native-paper';
+import * as Haptics from 'expo-haptics';
+
+
 export default function Todo({ navigation }: any) {
 	const dispatch = useDispatch();
 	const todos = useSelector((state: RootState) => state.todo?.todos);
-	const isLoading = useSelector((state: RootState) => state.todo.isLoading);
 
 	useEffect(() => {
+		// @ts-ignore 
 		dispatch(fetchTodos());
 	}, [dispatch]);
 
-	console.log('todos--todos', todos)
+	const handleClearTodos = () => {
+		// @ts-ignore 
+		dispatch(clearTodos());
+	};
+
+	// State for the current date
+	const [currentDate, setCurrentDate] = useState(new Date());
+
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			setCurrentDate(new Date());
+		}, 60000); // Update every minute
+
+		return () => clearInterval(intervalId); // Cleanup interval on unmount
+	}, []);
+
+	const formattedDate = currentDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
 
 
 	const handleToggleTodo = (id: number) => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
 		dispatch(toggleTodo(id)); // Dispatch action to toggle todo completion
 	};
 
 	const activeTodos = todos.filter((todo) => !todo.isCompleted);
 	const completedTodos = todos.filter((todo) => todo.isCompleted);
+
+
+	const getCategoryIcon = (category: any) => {
+		switch (category) {
+			case 'Profile':
+				return <AntDesign name="profile" size={18} color="#194A66" />;
+			case 'Calendar':
+				return <MaterialCommunityIcons name="calendar-today" size={18} color="#4A3780" />;
+			case 'Trophy':
+				return <SimpleLineIcons name="trophy" size={18} color="#403100" />;
+			default:
+				return <AntDesign name="question" size={18} color="#194A66" />;
+		}
+	};
 
 	return (
 		<View style={styles.container}>
@@ -35,7 +70,7 @@ export default function Todo({ navigation }: any) {
 				<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
 					<View style={styles.titleViewContainer}>
 						<View>
-							<Text style={styles.title_text_one}>October 20, 2022</Text>
+							<Text style={styles.title_text_one}>{formattedDate}</Text>
 						</View>
 						<View>
 							<Text style={styles.title_text_two}>My Todo List</Text>
@@ -53,13 +88,13 @@ export default function Todo({ navigation }: any) {
 						activeTodos.map((todo) => (
 							<TouchableOpacity
 								key={todo.id}
-								style={styles.touchableOpacity} // Adjust the style if necessary
-								onPress={() => handleToggleTodo(todo.id)}
+								onPress={() => { handleToggleTodo(todo.id), Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) }}
 							>
+
 								<View style={styles.list_item1}>
 									<View style={styles.list_item1_sub}>
-										<View style={styles.circle_icon}>
-											<AntDesign name="profile" size={18} color="#194A66" />
+										<View style={todo.category === "Profile" ? styles.CategoryIcon1 : todo.category === "Calendar" ? styles.CategoryIcon2 : styles.CategoryIcon3}>
+											{getCategoryIcon(todo.category)}
 										</View>
 										<View style={styles.circle_icon_container}>
 											<Text style={styles.circle_icon_Text}>{todo.title}</Text>
@@ -91,8 +126,8 @@ export default function Todo({ navigation }: any) {
 							completedTodos.map((completedTodo) => (
 								<View key={completedTodo.id} style={styles.list_item1}>
 									<View style={styles.list_item1_sub}>
-										<View style={styles.circle_icon}>
-											<AntDesign name="profile" size={18} color="#194A66" />
+										<View style={completedTodo.category === "Profile" ? styles.CategoryIcon1 : completedTodo.category === "Calendar" ? styles.CategoryIcon2 : styles.CategoryIcon3}>
+											{getCategoryIcon(completedTodo.category)}
 										</View>
 										<View style={styles.circle_icon_container}>
 											<Text style={styles.circle_icon_Text}>{completedTodo.title}</Text>
@@ -109,6 +144,14 @@ export default function Todo({ navigation }: any) {
 							))
 						)}
 					</ScrollView>
+
+					<View  >
+						<TouchableOpacity onPress={handleClearTodos}>
+							<Text>
+								Clear All Todos
+							</Text>
+						</TouchableOpacity>
+					</View>
 				</View>
 
 			</View>
@@ -123,6 +166,10 @@ export default function Todo({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+
+	circle_icon_container: {
+
+	},
 	noTodosContainer: {
 		flex: 1,
 		justifyContent: 'center',
@@ -193,13 +240,9 @@ const styles = StyleSheet.create({
 		color: "#1B1B1D",
 	},
 
-	circle_icon_container: {
 
-	},
 
-	checkbox: {
-		// margin: 5,
-	},
+
 
 	list_item1_sub: {
 		flexDirection: "row",
@@ -288,6 +331,34 @@ const styles = StyleSheet.create({
 		height: 250,
 	},
 
+	CategoryIcon1: {
+		width: 48,
+		height: 48,
+		backgroundColor: '#DBECF6',
+		borderRadius: 30,
+		justifyContent: 'center',
+		alignItems: 'center',
+
+	},
+	CategoryIcon2: {
+		width: 48,
+		height: 48,
+		backgroundColor: '#E7E2F3',
+		borderRadius: 30,
+		justifyContent: 'center',
+		alignItems: 'center',
+
+	},
+	CategoryIcon3: {
+		width: 48,
+		height: 48,
+		backgroundColor: '#FEF5D3',
+		borderRadius: 30,
+		justifyContent: 'center',
+		alignItems: 'center',
+
+	},
+
 	container: {
 		flex: 1,
 		backgroundColor: '#F1F5F9',
@@ -296,178 +367,3 @@ const styles = StyleSheet.create({
 
 
 
-// <View style={styles.container}>
-// 	<ScrollView  >
-// 		<StatusBar style="auto" />
-// 		<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
-// 			<View style={styles.titleViewContainer}>
-// 				<View  >
-// 					<Text style={styles.title_text_one}>October 20, 2022</Text>
-// 				</View>
-// 				<View  >
-// 					<Text style={styles.title_text_two}>My Todo List</Text>
-// 				</View>
-// 			</View>
-// 		</ImageBackground>
-
-// 		<View style={styles.Study_Container}>
-// 			<View style={styles.list_item1}>
-// 				<View style={styles.list_item1_sub}>
-// 					<View style={styles.circle_icon}></View>
-// 					<View style={styles.circle_icon_container}>
-// 						<Text style={styles.circle_icon_Text}>Study lesson</Text>
-// 						<Text>4:00pm</Text>
-// 					</View>
-// 				</View>
-// 				<View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={isChecked}
-// 						onValueChange={setChecked}
-// 						color={isChecked ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			</View>
-// 			<View style={styles.list_item2}>
-// 				<View style={styles.list_item1_sub}>
-// 					<View style={styles.circle_icon}></View>
-// 					<View style={styles.circle_icon_container}>
-// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
-// 						<Text>4:00pm</Text>
-// 					</View>
-// 				</View>
-// 				<View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={isChecked}
-// 						onValueChange={setChecked}
-// 						color={isChecked ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			</View>
-// 			<View style={styles.list_item3}>
-// 				<View style={styles.list_item1_sub}>
-// 					<View style={styles.circle_icon}></View>
-// 					<View style={styles.circle_icon_container}>
-// 						<Text style={styles.circle_icon_Text}>Go to party</Text>
-// 						<Text>4:00pm</Text>
-// 					</View>
-// 				</View>
-// 				<View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={isChecked}
-// 						onValueChange={setChecked}
-// 						color={isChecked ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			</View>
-
-// 		</View>
-
-// 		<View style={styles.Completed_selection}>
-
-// 			<Text style={styles.Completed_selection_text}>Completed</Text>
-
-// 			<View style={styles.list_item2}>
-// 				<View style={styles.list_item1_sub}>
-// 					<View style={styles.circle_icon}></View>
-// 					<View style={styles.circle_icon_container}>
-// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
-// 						<Text>4:00pm</Text>
-// 					</View>
-// 				</View>
-// 				<View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={isChecked}
-// 						onValueChange={setChecked}
-// 						color={isChecked ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			</View>
-// 			<View style={styles.list_item2}>
-// 				<View style={styles.list_item1_sub}>
-// 					<View style={styles.circle_icon}></View>
-// 					<View style={styles.circle_icon_container}>
-// 						<Text style={styles.circle_icon_Text}>Run 5k</Text>
-// 						<Text>4:00pm</Text>
-// 					</View>
-// 				</View>
-// 				<View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={isChecked}
-// 						onValueChange={setChecked}
-// 						color={isChecked ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			</View>
-// 		</View>
-
-// 	</ScrollView>
-// 	<View style={styles.btn_container_sub}>
-// 		<TouchableOpacity style={styles.btn_container} onPress={() => navigation.navigate("AddTodos")}>
-// 			<Text style={styles.logout_container_text}>Add New Task</Text>
-// 		</TouchableOpacity>
-// 	</View>
-
-// </View>
-
-// <View style={styles.container}>
-// 	<ScrollView>
-// 		<StatusBar style="auto" />
-// 		<ImageBackground source={require('../assets/Header.png')} resizeMode="cover" style={styles.imagecontainer}>
-// 			<View style={styles.titleViewContainer}>
-// 				<Text style={styles.title_text_one}>July 17, 2024</Text>
-// 				<Text style={styles.title_text_two}>My Todo List</Text>
-// 			</View>
-// 		</ImageBackground>
-
-// 		<View style={styles.Study_Container}>
-// 			{incompleteTasks.map(task => (
-// 				<View key={task.id} style={styles.list_item1}>
-// 					<View style={styles.list_item1_sub}>
-// 						<View style={styles.circle_icon}></View>
-// 						<View style={styles.circle_icon_container}>
-// 							<Text style={styles.circle_icon_Text}>{task.title}</Text>
-// 							<Text>{task.time}</Text>
-// 						</View>
-// 					</View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={task.isCompleted}
-// 						onValueChange={() => handleCheckboxChange(task.id)}
-// 						color={task.isCompleted ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			))}
-// 		</View>
-
-// 		<View style={styles.list_item2}>
-// 			<Text style={styles.Completed_selection_text}>Completed</Text>
-// 			{completedTasks.map(task => (
-// 				<View key={task.id} style={styles.list_item2}>
-// 					<View style={styles.list_item1_sub}>
-// 						<View style={styles.circle_icon}></View>
-// 						<View style={styles.circle_icon_container}>
-// 							<Text style={styles.circle_icon_Text}>{task.title}</Text>
-// 							<Text>{task.time}</Text>
-// 						</View>
-// 					</View>
-// 					<Checkbox
-// 						style={styles.checkbox}
-// 						value={task.isCompleted}
-// 						onValueChange={() => handleCheckboxChange(task.id)}
-// 						color={task.isCompleted ? '#4A3780' : undefined}
-// 					/>
-// 				</View>
-// 			))}
-// 		</View>
-// 	</ScrollView>
-// 	<View style={styles.btn_container_sub}>
-// 		<TouchableOpacity style={styles.btn_container} onPress={() => navigation.navigate('AddTodos')}>
-// 			<Text style={styles.logout_container_text}>Add New Task</Text>
-// 		</TouchableOpacity>
-// 	</View>
-// </View>

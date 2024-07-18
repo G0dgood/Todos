@@ -42,6 +42,7 @@ const TimeInput = ({ label, formData, onChange }: Props) => {
 					mode="time"
 					is24Hour={true}
 					display="default"
+					// @ts-ignore 
 					onChange={onTimeChangeHandler}
 				/>
 			)}
